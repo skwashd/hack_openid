@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Hack OpenID module install functions.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function hack_openid_install() {
+  db_update('system')
+    ->fields(array('weight' => 999))
+    ->condition('name', 'hack_openid')
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function hack_openid_uninstall() {
+  $variables = array(
+    'hack_openid_destination',
+    'hack_openid_domain_role_map',
+  );
+}

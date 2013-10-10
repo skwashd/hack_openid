@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * @file
+ * Hack OpenID module functions.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function hack_openid_menu() {
+  $items = array();
+
+  $items['user/login/gapps'] = array(
+    'title' => 'Google Apps OpenId redirect',
+    'page callback' => 'hack_openid_redirect',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Call back for redirecting the user to google apps.
+ */
+function hack_openid_redirect() {
+  $query = array('destination' => variable_get('hack_openid_destination'));
+  $url = url('openid/authenticate', array('absolute' => TRUE, 'query' => $query));
+  return openid_begin('https://www.google.com/accounts/o8/id', $url);
+}
+
+/**
+ * Implements hook_user_presave().
+ */
+function hack_openid_user_presave(&$edit, $account, $category) {
+  if (!$account->is_new || 'account' != $category) {
+    return;
+  }
+
+  // map @domain => role_name
+  $domains = variable_get('hack_openid_domain_role_map', $domains);
+
+  $domain = strstr($edit['mail'], '@');
+  if (isset($domains[$domain])) {
+    $user_roles = array_flip(user_roles(TRUE));
+    $rid = $user_roles[$domains[$domain]];
+    $edit['roles'][$rid] = $rid;
+    $edit['status'] = TRUE;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function hack_openid_form_user_register_form_alter(&$form, &$form_state) {
+  $account =& $form['account'];
+  if (!empty($account['mail']['#default_value']) && empty($account['name']['#default_value'])) {
+    $account['name']['#default_value'] = $account['mail']['#default_value'];
+  }
+}

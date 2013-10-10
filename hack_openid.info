@@ -3,4 +3,4 @@ description = Hacks OpenID options displayed by openid_selector
 
 core = 7.x
 
-depedencies[] = openid
+dependencies[] = openid

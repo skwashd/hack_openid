@@ -39,7 +39,7 @@ function hack_openid_user_presave(&$edit, $account, $category) {
   }
 
   // map @domain => role_name
-  $domains = variable_get('hack_openid_domain_role_map', $domains);
+  $domains = variable_get('hack_openid_domain_role_map');
 
   $domain = strstr($edit['mail'], '@');
   if (isset($domains[$domain])) {
